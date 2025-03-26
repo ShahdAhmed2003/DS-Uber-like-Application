@@ -113,5 +113,76 @@ public static synchronized String getCustomerIdFromRideId(String rideId) {
 public static synchronized List<User> getAllUsers() {
    return new ArrayList<>(users);
 }
+    // N6 Ride Status Updates
+    public static synchronized String updateRideStatus(String rideId, String statusUpdate) {
+        for (Ride ride : rides) {
+            if (ride.rideId == Integer.parseInt(rideId)) {
+                if (!ride.status.equals("Ongoing") && !ride.status.equals("Accepted")) {
+                    return "Ride is not in progress, cannot update status.";
+                }
+
+                if (statusUpdate.equalsIgnoreCase("start")) {
+                    ride.status = "Ongoing";
+                    return "Ride status updated to Ongoing. Notified customer.";
+                } else if (statusUpdate.equalsIgnoreCase("finish")) {
+                    ride.status = "Completed";
+                    ride.driver.isAvailable = true;
+                    return "Ride marked as Completed. Notified customer.";
+                } else {
+                    return "Invalid status update.";
+                }
+            }
+        }
+        return "Ride not found.";
+    }
+    //N7 Disconnect
+    public static synchronized boolean canDisconnect(String userId) {
+        for (Ride ride : rides) {
+            if (ride.status.equals("Ongoing") &&
+                    (ride.customer.id.equals(userId) || (ride.driver != null && ride.driver.id.equals(userId)))) {
+                return false; // In an ongoing ride
+            }
+        }
+        return true;
+    }
+
+    //N8 Statistics
+    /* public static synchronized List<String> getAdminStatistics(User currentUser) {
+        if (currentUser == null || !currentUser.type.equalsIgnoreCase("Admin")) {
+            List<String> error = new ArrayList<>();
+            error.add("Access Denied: Only Admin can view statistics.");
+            return error;
+        }
+
+        int totalRides = rides.size();
+        int completed = 0, ongoing = 0, pending = 0, accepted = 0;
+        int totalDrivers = 0, totalCustomers = 0;
+
+        for (Ride ride : rides) {
+            switch (ride.status) {
+                case "Completed": completed++; break;
+                case "Ongoing": ongoing++; break;
+                case "Pending": pending++; break;
+                case "Accepted": accepted++; break;
+            }
+        }
+
+        for (User user : users) {
+            if (user instanceof Driver) totalDrivers++;
+            else if (user instanceof Customer) totalCustomers++;
+        }
+
+        List<String> stats = new ArrayList<>();
+        stats.add("Total Rides: " + totalRides);
+        stats.add("Pending: " + pending);
+        stats.add("Accepted: " + accepted);
+        stats.add("Ongoing: " + ongoing);
+        stats.add("Completed: " + completed);
+        stats.add("Total Customers: " + totalCustomers);
+        stats.add("Total Drivers: " + totalDrivers);
+
+        return stats;
+    }
+*/
 
 }
