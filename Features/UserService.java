@@ -110,19 +110,8 @@ public static synchronized String getCustomerIdFromRideId(String rideId) {
     }
     return "Ride not found"; // If rideId does not exist
 }
-public static synchronized List<String> getAllUsers() {
-    List<String> userList = new ArrayList<>();
-    
-    for (User user : users) {
-        String userInfo = "ID: " + user.id + " | Name: " + user.name + " | Type: " + user.getClass().getSimpleName();
-        userList.add(userInfo);
-    }
-
-    if (userList.isEmpty()) {
-        userList.add("No users found.");
-    }
-
-    return userList;
+public static synchronized List<User> getAllUsers() {
+   return new ArrayList<>(users);
 }
 
 }
