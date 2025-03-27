@@ -68,14 +68,15 @@ public class UserService {
         System.out.println(rideId);
         for (Ride ride : rides) {
             System.out.println(ride.rideId);
-            if (ride.rideId == rideId && ride.status.equals("Pending")) {
+            if (ride.rideId == rideId && ride.status.equals("Pending")&&ride.driver.isAvailable) {
                 ride.assignDriver(driver, price);
+                ride.driver.isAvailable=false;
                 return "Fare offer submitted for Ride ID: " + ride.rideId;
             }
         }
-        return "Ride not found or already assigned.";
+        return "Cannot offer this ride";
     }
-    public static synchronized List<String> getAvailableRidesWithOffers(String customerId) {
+   /* public static synchronized List<String> getAvailableRidesWithOffers(String customerId) {
         List<String> availableRides = new ArrayList<>();
         for (Ride ride : rides) {
             if (ride.status.equals("Accepted") && ride.customer.id.equals(customerId)) {
@@ -84,17 +85,17 @@ public class UserService {
             }
         }
         return availableRides;
-    }
+    }*/
     
 
     public static synchronized String acceptRideOffer(String rideId, String customerId) {
         for (Ride ride : rides) {
-            if (ride.rideId == Integer.parseInt(rideId) && ride.status.equals("Accepted")) {
+            if (ride.rideId == Integer.parseInt(rideId) && ride.status.equals("Pending")) {
                 if (ride.customer.id.equals(customerId)) {
                     ride.status = "Ongoing";
                     return "Ride accepted! Driver: " + ride.driver.name + " | Price: $" + ride.price;
                 } else {
-                    return "You are not authorized to accept this ride.";
+                    return "Invalid ride ID or customer ID!";
                 }
             }
         }
@@ -102,10 +103,10 @@ public class UserService {
     }
 
     
-public static synchronized String getCustomerIdFromRideId(String rideId) {
+public static synchronized String getCustomernameFromRideId(String rideId) {
     for (Ride ride : rides) {
         if (ride.rideId == Integer.parseInt(rideId)) {
-            return ride.customer.id; // Return the customer's ID
+            return ride.customer.name; // Return the customer's ID
         }
     }
     return "Ride not found"; // If rideId does not exist
@@ -145,7 +146,27 @@ public static synchronized List<User> getAllUsers() {
         }
         return true;
     }
+public static synchronized String rateDriver(String driverId, double cleanliness, double drivingSkills, double navigationSkills) {
+    for (User user : users) {
+        if (user instanceof Driver && user.id.equals(driverId)) {
+            Driver driver = (Driver) user;
 
+            // Validate ratings (1-5)
+            if (cleanliness < 1 || cleanliness > 5 || drivingSkills < 1 || drivingSkills > 5 || navigationSkills < 1 || navigationSkills > 5) {
+                return "Invalid rating! Each category must be between 1 and 5.";
+            }
+
+            // Calculate average rating
+            double newrating = (cleanliness + drivingSkills + navigationSkills) / 3.0;
+            driver.Rating=(driver.Rating*driver.ratingCount+newrating)/(driver.ratingCount+1);
+            driver.ratingCount++;
+            driver.isAvailable=true;
+            return "Driver " + driver.name + " has been rated successfully!";
+
+        }
+    }
+    return "Driver not found!";
+}
     //N8 Statistics
     /* public static synchronized List<String> getAdminStatistics(User currentUser) {
         if (currentUser == null || !currentUser.type.equalsIgnoreCase("Admin")) {
