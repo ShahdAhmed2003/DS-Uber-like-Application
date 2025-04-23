@@ -1,8 +1,0 @@
-{
-  "customers": [
-    { "username": "omar", "password": "asdqwe123", "type": "customer" }
-  ],
-  "drivers": [
-    { "username": "shahd", "password": "asdqwe123", "type": "driver" }
-  ]
-}
